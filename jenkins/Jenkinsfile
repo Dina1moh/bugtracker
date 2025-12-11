@@ -20,12 +20,27 @@ pipeline {
                         
                         # Run tests and generate JUnit report
                         go test -v ./... 2>&1 | /go/bin/go-junit-report -set-exit-code > test-results.xml || true
+
+                        #genearate coverage report
+                        go test -coverprofile=coverage.out -covermode=atomic ./...
+                        go tool cover -html=coverage.out -o coverage.html
+                         
+                        mk dir -p coverage-reports
+                        mv coverage.html coverage-reports/
                     '''
                 }
             }
             post {
                 always {
                     junit "bugtracker-backend/test-results.xml"
+                    publichHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'bugtracker-backend/coverage-reports',
+                        reportFiles: 'coverage.html',
+                        reportName: 'Backend Coverage Report'
+                    ])
                 }
             }
         }
