@@ -1,6 +1,8 @@
 pipeline {
     agent any
+
     stages {
+
         stage("Unit Test - Backend") {
             agent {
                 docker {
@@ -8,20 +10,24 @@ pipeline {
                     reuseNode true
                 }
             }
+
             environment {
                 GOCACHE = "${WORKSPACE}/.gocache"
+                PATH = "/go/bin:${PATH}"
             }
+
             steps {
                 sh 'mkdir -p $GOCACHE'
+
                 dir("bugtracker-backend") {
                     sh '''
                         # Install go-junit-report
                         go install github.com/jstemmer/go-junit-report/v2@latest
                         
-                        # Run tests and generate JUnit report
+                        # Run backend tests + JUnit
                         go test -v ./... 2>&1 | /go/bin/go-junit-report -set-exit-code > test-results.xml || true
                         
-                        # Generate coverage report
+                        # Generate Go coverage
                         go test -coverprofile=coverage.out -covermode=atomic ./...
                         go tool cover -html=coverage.out -o coverage.html
                         
@@ -30,20 +36,21 @@ pipeline {
                     '''
                 }
             }
+
             post {
                 always {
                     junit "bugtracker-backend/test-results.xml"
                     publishHTML(target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
                         reportDir: 'bugtracker-backend/reports',
                         reportFiles: 'coverage.html',
-                        reportName: 'Backend Coverage Report'
+                        reportName: 'Backend Coverage Report',
+                        keepAll: true
                     ])
                 }
             }
         }
+
+
         stage("Unit Test - Frontend") {
             agent {
                 docker {
@@ -51,11 +58,14 @@ pipeline {
                     reuseNode true
                 }
             }
+
             environment {
                 NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
             }
+
             steps {
                 sh 'mkdir -p $NPM_CONFIG_CACHE'
+
                 dir("bugtracker-frontend") {
                     sh '''
                         npm ci
@@ -64,16 +74,15 @@ pipeline {
                     '''
                 }
             }
+
             post {
                 always {
                     junit "bugtracker-frontend/test-results.xml"
                     publishHTML(target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
                         reportDir: 'bugtracker-frontend/coverage/lcov-report',
                         reportFiles: 'index.html',
-                        reportName: 'Frontend Coverage Report'
+                        reportName: 'Frontend Coverage Report',
+                        keepAll: true
                     ])
                 }
             }
