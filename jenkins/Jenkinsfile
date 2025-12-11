@@ -3,6 +3,7 @@ pipeline {
 
     stages {
 
+        // ===================== BACKEND ======================
         stage("Unit Test - Backend") {
             agent {
                 docker {
@@ -24,10 +25,10 @@ pipeline {
                         # Install go-junit-report
                         go install github.com/jstemmer/go-junit-report/v2@latest
                         
-                        # Run backend tests + JUnit
+                        # Run backend tests + JUnit XML
                         go test -v ./... 2>&1 | /go/bin/go-junit-report -set-exit-code > test-results.xml || true
                         
-                        # Generate Go coverage
+                        # Coverage
                         go test -coverprofile=coverage.out -covermode=atomic ./...
                         go tool cover -html=coverage.out -o coverage.html
                         
@@ -41,8 +42,8 @@ pipeline {
                 always {
                     junit "bugtracker-backend/test-results.xml"
                     publishHTML(target: [
-                        reportDir: 'bugtracker-backend/reports/coverage',
-                        reportFiles: 'index.html',
+                        reportDir: 'bugtracker-backend/reports',
+                        reportFiles: 'coverage.html',
                         reportName: 'Backend Coverage Report',
                         keepAll: true
                     ])
@@ -50,7 +51,7 @@ pipeline {
             }
         }
 
-
+        // ===================== FRONTEND ======================
         stage("Unit Test - Frontend") {
             agent {
                 docker {
@@ -70,7 +71,12 @@ pipeline {
                     sh '''
                         npm ci
                         npm install --save-dev jest-junit
+                        
+                        # Run tests + produce JUnit XML + Coverage HTML
                         npm test -- --reporters=default --reporters=jest-junit --coverage
+                        
+                        echo "DEBUG: FILE TREE"
+                        ls -R .
                     '''
                 }
             }
