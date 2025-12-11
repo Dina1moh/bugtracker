@@ -29,7 +29,11 @@ pipeline {
                     reuseNode true
                 }
             }
+            environment {
+                NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
+            }
             steps {
+                sh 'mkdir -p $NPM_CONFIG_CACHE'
                 dir("bugtracker-frontend") {
                     sh '''
                         npm ci
