@@ -24,8 +24,7 @@ pipeline {
                     sh '''
                         # Install go-junit-report
                         go install github.com/jstemmer/go-junit-report/v2@latest
-                        # Install jest-junit for frontend tests
-                        npm install --save-dev jest-junit --force
+                        
 
                         
                         # Run backend tests + JUnit XML
@@ -73,8 +72,8 @@ pipeline {
                 dir("bugtracker-frontend") {
                     sh '''
                         npm ci 
-
-                        npm install --save-dev jest-junit
+                        # Install jest-junit for frontend tests
+                        npm install --save-dev jest-junit --force
                         
                         # Run tests + produce JUnit XML + Coverage HTML
                         npm test -- --reporters=default --reporters=jest-junit --coverage
