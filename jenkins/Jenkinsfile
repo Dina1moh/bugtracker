@@ -1,5 +1,5 @@
 pipeline {
-    agent none
+    agent any
 
     stages {
 
@@ -10,13 +10,12 @@ pipeline {
                     reuseNode true
                 }
             }
-            stages {
-                stage("Run Backend Tests") {
-                    steps {
-                        dir("bugtracker-backend") {
-                            sh 'go test -v ./...'
-                        }
-                    }
+            
+            steps {
+
+                dir("bugtracker-backend") {
+                    sh 'go test -v ./...'
+                    
                 }
             }
         }
@@ -28,16 +27,12 @@ pipeline {
                     reuseNode true
                 }
             }
-            stages {
-                stage("Run Frontend Tests") {
-                    steps {
-                        dir("bugtracker-frontend") {
-                            sh '''
-                                npm ci
-                                npm test
-                            '''
-                        }
-                    }
+            steps {
+                dir("bugtracker-frontend") {
+                    sh '''
+                        npm ci
+                        npm test
+                    '''
                 }
             }
         }
