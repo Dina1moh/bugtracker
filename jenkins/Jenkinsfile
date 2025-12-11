@@ -69,7 +69,7 @@ pipeline {
 
                 dir("bugtracker-frontend") {
                     sh '''
-                        npm ci --legacy-peer-deps
+                        npm ci 
 
                         npm install --save-dev jest-junit
                         
