@@ -22,29 +22,26 @@ pipeline {
                         go test -v ./... 2>&1 | /go/bin/go-junit-report -set-exit-code > test-results.xml || true
                         
                         # Generate coverage report
-
-                            go test-coverprofile=coverage.out -covermode=atomic./...
-
-                            go tool cover -html-coverage.out -o coverage.html
-
-                            mkdir -p reports
-
-                            mv coverage.html reports/
-
+                        go test -coverprofile=coverage.out -covermode=atomic ./...
+                        go tool cover -html=coverage.out -o coverage.html
+                        
+                        mkdir -p reports
+                        mv coverage.html reports/
                     '''
                 }
             }
             post {
                 always {
                     junit "bugtracker-backend/test-results.xml"
-                    publishHTML target:[
-
-                    reportDir: 'bugtracker-backend/reports',
-
-                    reportFiles: 'coverage.html',
-
-                    reportName: 'Backend Coverage Report'   ]           
-                      }
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'bugtracker-backend/reports',
+                        reportFiles: 'coverage.html',
+                        reportName: 'Backend Coverage Report'
+                    ])
+                }
             }
         }
         stage("Unit Test - Frontend") {
@@ -63,23 +60,23 @@ pipeline {
                     sh '''
                         npm ci
                         npm install --save-dev jest-junit
-                        npm test 
+                        npm test -- --reporters=jest-junit --coverage
                     '''
                 }
             }
             post {
                 always {
                     junit "bugtracker-frontend/junit.xml"
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'bugtracker-frontend/coverage/lcov-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Frontend Coverage Report'
+                    ])
                 }
             }
         }
     }
 }
-
-
-
-
-
-
-
-
