@@ -45,13 +45,13 @@ pipeline {
                     sh '''
                         npm ci
                         npm install --save-dev jest-junit
-                        npm test -- --coverage --reporters=default --reporters=jest-junit || true
+                        npm test 
                     '''
                 }
             }
             post {
                 always {
-                    junit "bugtracker-frontend/junit.xml"
+                    junit "bugtracker-frontend/test-results.xml"
                 }
             }
         }
