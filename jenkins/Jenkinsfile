@@ -6,7 +6,7 @@ pipeline {
         stage("Unit Test - Backend") {
             agent {
                 docker {
-                    image 'golang:1.21'
+                    image 'golang-junit:1.21'
                     reuseNode true
                 }
             }
@@ -17,7 +17,9 @@ pipeline {
                 sh 'mkdir -p $GOCACHE'
 
                 dir("bugtracker-backend") {
-                    sh 'go test -v ./... -cover'
+                    sh '''
+                        go test -v ./... 2>&1 | go-junit-report > test-results.xml
+                     '''
                 }
             }
             post {
