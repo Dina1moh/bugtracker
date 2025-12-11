@@ -70,20 +70,14 @@ pipeline {
                 sh 'mkdir -p $NPM_CONFIG_CACHE'
 
                 dir("bugtracker-frontend") {
-                    sh '''
-                        npm ci 
-                        # Install jest-junit for frontend tests
-                        npm install --save-dev jest-junit --force
+                    ssh '''
+                        npm ci --legacy-peer-deps
+                        npm install jest@29.7.0 ts-jest@29.2.5 jest-junit --save-dev --legacy-peer-deps
                         
-                        # Run tests + produce JUnit XML + Coverage HTML
                         npm test -- --reporters=default --reporters=jest-junit --coverage
 
-                        # Move coverage report to a dedicated folder
                         mkdir -p reports
                         mv coverage reports/
-                        
-                        
-                       
                     '''
                 }
             }
