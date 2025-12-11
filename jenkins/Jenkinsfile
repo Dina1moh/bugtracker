@@ -20,8 +20,8 @@ pipeline {
                         
                         # Run tests and generate JUnit report
                         go test -v ./... 2>&1 | /go/bin/go-junit-report -set-exit-code > test-results.xml || true
-
-                        #genearate coverage report
+                        
+                        # Generate coverage report
                         go test -coverprofile=coverage.out -covermode=atomic ./...
                         go tool cover -html=coverage.out -o coverage.html
                          
@@ -60,13 +60,21 @@ pipeline {
                     sh '''
                         npm ci
                         npm install --save-dev jest-junit
-                        npm test -- --reporters=jest-junit
+                        npm test -- --config=jest.config.js --coverage --reporters=default --reporters=jest-junit || true
                     '''
                 }
             }
             post {
                 always {
-                    junit "bugtracker-frontend/test-results.xml"
+                    junit "bugtracker-frontend/junit.xml"
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'bugtracker-frontend/coverage',
+                        reportFiles: 'index.html',
+                        reportName: 'Frontend Coverage Report'
+                    ])
                 }
             }
         }
