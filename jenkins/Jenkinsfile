@@ -24,6 +24,9 @@ pipeline {
                     sh '''
                         # Install go-junit-report
                         go install github.com/jstemmer/go-junit-report/v2@latest
+                        # Install jest-junit for frontend tests
+                        npm install --save-dev jest-junit --force
+
                         
                         # Run backend tests + JUnit XML
                         go test -v ./... 2>&1 | /go/bin/go-junit-report -set-exit-code > test-results.xml || true
