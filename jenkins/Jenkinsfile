@@ -25,7 +25,7 @@ pipeline {
                         go test -coverprofile=coverage.out -covermode=atomic ./...
                         go tool cover -html=coverage.out -o coverage.html
                          
-                        mk dir -p coverage-reports
+                        mkdir -p coverage-reports
                         mv coverage.html coverage-reports/
                     '''
                 }
@@ -33,7 +33,7 @@ pipeline {
             post {
                 always {
                     junit "bugtracker-backend/test-results.xml"
-                    publichHTML(target: [
+                    publishHTML(target: [
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
@@ -60,7 +60,7 @@ pipeline {
                     sh '''
                         npm ci
                         npm install --save-dev jest-junit
-                        npm test 
+                        npm test -- --reporters=jest-junit
                     '''
                 }
             }
