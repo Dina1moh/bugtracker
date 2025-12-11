@@ -1,21 +1,46 @@
-pipeline{
-    agent {
-        docker {
-            image 'golang:1.21' 
-            args '-u root:root' 
-            reuseNode true
-        } 
-    }
-    stages{
-        stage("unit test-Backend"){
-            steps{
-                echo "Running Backend Unit Tests"
-                // Add your backend unit test commands here
-                dir("bugtracker-backend"){
-                    sh 'go test -v ./...'
+pipeline {
+    agent none
+
+    stages {
+
+        stage("Unit Test - Backend") {
+            agent {
+                docker {
+                    image 'snakey/go:junit-1.21'
+                    reuseNode true
+                }
+            }
+            stages {
+                stage("Run Backend Tests") {
+                    steps {
+                        dir("bugtracker-backend") {
+                            sh 'go test -v ./...'
+                        }
+                    }
                 }
             }
         }
-        
+
+        stage("Unit Test - Frontend") {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                    reuseNode true
+                }
+            }
+            stages {
+                stage("Run Frontend Tests") {
+                    steps {
+                        dir("bugtracker-frontend") {
+                            sh '''
+                                npm ci
+                                npm test
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }
