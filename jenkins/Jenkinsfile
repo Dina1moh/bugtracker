@@ -7,15 +7,17 @@ pipeline {
             agent {
                 docker {
                     image 'golang:1.21'
-                    
+                    reuseNode true
                 }
             }
-            
+            environment {
+                GOCACHE = "${WORKSPACE}/.gocache"
+            }
             steps {
+                sh 'mkdir -p $GOCACHE'
 
                 dir("bugtracker-backend") {
                     sh 'go test -v ./...'
-                    
                 }
             }
         }
@@ -24,7 +26,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:20-alpine'
-                    
+                    reuseNode true
                 }
             }
             steps {
