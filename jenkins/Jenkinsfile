@@ -43,8 +43,7 @@ pipeline {
             }
                     post {
             always {
-                junit '**/report.xml'
-                junit '**/reports/jest/*.xml'
+                junit "bugtracker-backend/test-results.xml"
             }
         }
 
