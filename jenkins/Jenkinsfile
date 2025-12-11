@@ -60,13 +60,13 @@ pipeline {
                     sh '''
                         npm ci
                         npm install --save-dev jest-junit
-                        npm test -- --reporters=jest-junit --coverage
+                        npm test -- --reporters=default --reporters=jest-junit --coverage
                     '''
                 }
             }
             post {
                 always {
-                    junit "bugtracker-frontend/junit.xml"
+                    junit "bugtracker-frontend/test-results.xml"
                     publishHTML(target: [
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
