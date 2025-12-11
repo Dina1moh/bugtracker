@@ -17,7 +17,14 @@ pipeline {
                 sh 'mkdir -p $GOCACHE'
 
                 dir("bugtracker-backend") {
-                    sh 'go test -v ./...'
+                    sh '''
+                        go test -v ./... | go-junit-report > test-results.xml
+                    '''
+                }
+            }
+            post {
+                always {
+                    junit 'bugtracker-backend/test-results.xml'
                 }
             }
         }
@@ -41,12 +48,11 @@ pipeline {
                     '''
                 }
             }
-                    post {
-            always {
-                junit "bugtracker-backend/test-results.xml"
+            post {
+                always {
+                    junit 'bugtracker-frontend/test-results/frontend-report.xml'
+                }
             }
         }
-
     }
-}
 }
