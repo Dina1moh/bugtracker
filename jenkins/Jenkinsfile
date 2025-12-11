@@ -33,14 +33,7 @@ pipeline {
             post {
                 always {
                     junit "bugtracker-backend/test-results.xml"
-                    publishHTML(target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'bugtracker-backend/coverage-reports',
-                        reportFiles: 'coverage.html',
-                        reportName: 'Backend Coverage Report'
-                    ])
+                    archiveArtifacts artifacts: 'bugtracker-backend/coverage-reports/**/*', allowEmptyArchive: true
                 }
             }
         }
@@ -67,14 +60,7 @@ pipeline {
             post {
                 always {
                     junit "bugtracker-frontend/junit.xml"
-                    publishHTML(target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'bugtracker-frontend/coverage',
-                        reportFiles: 'index.html',
-                        reportName: 'Frontend Coverage Report'
-                    ])
+                    archiveArtifacts artifacts: 'bugtracker-frontend/coverage/**/*', allowEmptyArchive: true
                 }
             }
         }
