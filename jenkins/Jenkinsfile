@@ -26,8 +26,9 @@ pipeline {
                         go test -v ./... 2>&1 | /go/bin/go-junit-report -set-exit-code > test-results.xml || true
                         go test -coverprofile=coverage.out -covermode=atomic ./...
                         go tool cover -html=coverage.out -o coverage.html
+                        rm -rf reports/coverage
                         mkdir -p reports
-                        mv coverage.html reports/
+                        mv coverage reports/
                     '''
                 }
             }
