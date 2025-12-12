@@ -22,18 +22,10 @@ pipeline {
 
                 dir("bugtracker-backend") {
                     sh '''
-                        # Install go-junit-report
                         go install github.com/jstemmer/go-junit-report/v2@latest
-                        
-
-                        
-                        # Run backend tests + JUnit XML
                         go test -v ./... 2>&1 | /go/bin/go-junit-report -set-exit-code > test-results.xml || true
-                        
-                        # Coverage
                         go test -coverprofile=coverage.out -covermode=atomic ./...
                         go tool cover -html=coverage.out -o coverage.html
-                        
                         mkdir -p reports
                         mv coverage.html reports/
                     '''
@@ -70,12 +62,10 @@ pipeline {
                 sh 'mkdir -p $NPM_CONFIG_CACHE'
 
                 dir("bugtracker-frontend") {
-                    ssh '''
+                    sh '''
                         npm ci --legacy-peer-deps
                         npm install jest@29.7.0 ts-jest@29.2.5 jest-junit --save-dev --legacy-peer-deps
-                        
                         npm test -- --reporters=default --reporters=jest-junit --coverage
-
                         mkdir -p reports
                         mv coverage reports/
                     '''
@@ -94,5 +84,18 @@ pipeline {
                 }
             }
         }
+
+        // ===================== SONARQUBE ======================
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'SonarScanner' 
+                    withSonarQubeEnv('MySonarQube') {   
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+
     }
 }
